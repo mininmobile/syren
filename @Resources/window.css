@@ -1,0 +1,11 @@
+/* this css file (window.css) will only apply to its corrosponding syren
+file (window.syren) */
+
+body {
+	background-color: #1c1c1c;
+}
+
+/* styles the meter called 'meter' */
+#meter {
+	color: #dddddd;
+}

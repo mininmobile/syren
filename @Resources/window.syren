@@ -1,0 +1,41 @@
+// creates a new syren application called app
+new Application app
+
+// a set (function) that stores syren statements that can be executed later
+// using the use statement
+set initializeApplication {
+	// set the title of the skin
+	app.title "Test Application"
+	// set the metadata of the skin
+	app.meta "zvava" "1.0" "MIT" "Test Application for Syren"
+	// set size of skin (not including titlebars/border/etc, those are
+	// automatically managed)
+	app.size 400 300
+}
+
+set initializeComponents {
+	// create a new text meter called meter
+	new TextMeter meter
+	// set the content of the meter
+	meter.content = "Hello, World!"
+	// set the position of the meter
+	meter.x = 100
+	meter.y = 100
+}
+
+// a lump is like a set but for rainmeter bangs, these can be used as
+// "event handlers" for events
+lump myRefreshHandler {
+	log "Hello, World!"
+	delay 1000
+	log "piss pot"
+}
+
+// set the onRefreshAction for the app to the lump myRefreshHandler
+app.onRefresh = myRefreshHandler
+// equivalent to
+app.onRefresh = [!log "Hello, World!"][!delay 1000][!log "piss pot"]
+
+// run statements in these sets
+use initializeApplication
+use initializeComponents

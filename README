@@ -1,0 +1,29 @@
+SYREN ~ a beautiful mermaid baby with magical powers
+---
+
+a scripting language which, alongside css, compiles into rainmeter ini files.
+
+USAGE
+---
+
+you will need:
+->  node.js
+!   tested with node.js v16.15.0 (lts)
+    you can check with `node -v` in cmd
+
+->  rainmeter
+!   tested with rainmeter v4.5.13
+    you can check with right-click tray icon > About
+
+steps:
+1)  install syren (git clone into My Documents/Rainmeter/Skins/)
+*   alternatively download repository as .zip and extract syren/ into Skins/
+
+2)
+
+ARCHITECTURE
+---
+
+the main folder which contains the source for all your syren applications is
+located in the root of Skins/syren/@Resources. the compiler will include all
+.css and .syren files in this folder in the compilation

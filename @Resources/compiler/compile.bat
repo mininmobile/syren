@@ -1,9 +1,9 @@
 @echo off
-echo compiling syren...
-echo ---
-echo started compiler
+echo + compiling syren...
+echo.
 node compiler.js
-echo refreshing rainmeter
+echo.
+echo + refreshing rainmeter...
 if exist "C:\Program Files\Rainmeter\Rainmeter.exe" (
 	"C:\Program Files\Rainmeter\Rainmeter.exe" !RefreshApp
 ) else (
@@ -16,13 +16,14 @@ if exist "C:\Program Files\Rainmeter\Rainmeter.exe" (
 			if exist "F:\Program Files\Rainmeter\Rainmeter.exe" (
 				"F:\Program Files\Rainmeter\Rainmeter.exe" !RefreshApp
 			) else (
-				echo ! Could not find Rainmeter installation location
-				echo ! You will need to manually refresh Rainmeter
+				echo.
+				echo ! could not find rainmeter's installation location
+				echo ! you will need to manually refresh rainmeter
+				echo.
+				echo ? try editing @Resources/compiler/compile.bat
+				echo.
 			)
 		)
 	)
 )
-echo ---
-echo syren has been compiled
-echo press any key to exit
-pause > nul
+echo + syren has been compiled

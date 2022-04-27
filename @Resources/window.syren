@@ -1,26 +1,35 @@
+/*
+this syren file (window.syren) will use styles from its corrosponding css
+file (window.css)
+
+window's components, applications, sets, lumps, and variables can all be
+refered to from any other .syren scipt by simply prefixing it with "window."
+eg. calling `window.meter.content += "Hello, from World!"`
+*/
+
 // creates a new syren application called app
 new Application app
 
 // a set (function) that stores syren statements that can be executed later
 // using the use statement
 set initializeApplication {
-	// set the title of the skin
-	app.title "Test Application"
-	// set the metadata of the skin
+	// set app's title by assigning to its 'title' field
+	app.title = "Test Application"
+	// set the metadata of the skin by calling the meta method of 'app')
 	app.meta "zvava" "1.0" "MIT" "Test Application for Syren"
-	// set size of skin (not including titlebars/border/etc, those are
-	// automatically managed)
+	// set size of skin by calling the size method of 'app')
 	app.size 400 300
 }
 
 set initializeComponents {
+	// creates a shape meter called background
+	new ShapeMeter background
+	background.shape = "rectangle 0, 0, #app.w#, #app.h#, 8 | fill color 1c1c1c | strokewidth 1.5 | stroke color 777777"
+
 	// create a new text meter called meter
 	new TextMeter meter
-	// set the content of the meter
 	meter.content = "Hello, World!"
-	// set the position of the meter
-	meter.x = 100
-	meter.y = 100
+	meter.pos 100 100
 }
 
 // a lump is like a set but for rainmeter bangs, these can be used as

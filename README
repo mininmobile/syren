@@ -15,15 +15,43 @@ you will need:
 !   tested with rainmeter v4.5.13
     you can check with right-click tray icon > About
 
-steps:
-1)  install syren (git clone into My Documents/Rainmeter/Skins/)
-*   alternatively download repository as .zip and extract syren/ into Skins/
+~>  git
+!   optional
+    used to update repositories in @Sources and syren itself
 
-2)
+steps:
+1)  install syren (git clone into My Documents\Rainmeter\Skins\)
+*   alternatively download repository as .zip and extract syren\ into Skins\
+
+2)  cd @Resources
+
+3)  compile.bat
+*   this will make @Sources\ in the syren\ folder
+*   this is where you place all your .syren and .css files, they are included
+    in to your compilation automagically when running the compiler
 
 ARCHITECTURE
 ---
 
-the main folder which contains the source for all your syren applications is
-located in the root of Skins/syren/@Resources. the compiler will include all
-.css and .syren files in this folder in the compilation
+the main folder which contains the source code for all your syren applications
+is Skins\syren\@Sources. the "compiler" will include all files ending in .css
+and .syren in this folder and its subfolders in the 'compilation'.
+
+i put compiler in quotes as it is not much of a compiler. instead it is more of
+a preprocessor. it runs in the following steps:
+
+1.  interpret all the scripts
+*   all the scripts (.syren files) will be ran in order of global1st.syren, to
+    all other .syren files in alphabetical order, to global2nd.syren
+
+2. application, meter, and measure objects are extracted from the closed runtime
+
+3. parse all css files, and apply properties to the extracted objects
+
+4. serialize all the objects into .ini files of their corrosponding application
+
+
+SYNTAX
+---
+
+under construction

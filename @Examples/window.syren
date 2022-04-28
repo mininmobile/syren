@@ -8,28 +8,30 @@ eg. calling `window.meter.content += "Hello, from World!"`
 */
 
 // creates a new syren application called app
-new Application app
+new Application testapp
 
 // a set (function) that stores syren statements that can be executed later
 // using the use statement
 set initializeApplication {
 	// set app's title by assigning to its 'title' field
-	app.title = "Test Application"
+	testapp.title = "Test Application"
 	// set the metadata of the skin by calling the meta method of 'app')
-	app.meta "zvava" "1.0" "MIT" "Test Application for Syren"
+	testapp.meta "zvava" "1.0" "MIT" "Test Application for Syren"
 	// set size of skin by calling the size method of 'app')
-	app.size 400 300
+	testapp.size 400 300
 }
 
 set initializeComponents {
-	// creates a shape meter called background
-	new ShapeMeter background
-	background.shape = "rectangle 0, 0, #app.w#, #app.h#, 8 | fill color 1c1c1c | strokewidth 1.5 | stroke color 777777"
+	// creates a shape meter called background, add to testapp's meters immediately
+	new ShapeMeter background > testapp
+	background.shape = "rectangle 0, 0, #testapp.w#, #testapp.h#, 8 | fill color 1c1c1c | strokewidth 1.5 | stroke color 777777"
 
 	// create a new text meter called meter
 	new TextMeter meter
 	meter.content = "Hello, World!"
 	meter.pos 100 100
+	// add to testapp's meter after setting its properties
+	meter > testapp
 }
 
 // a lump is like a set but for rainmeter bangs, these can be used as
@@ -41,9 +43,9 @@ lump myRefreshHandler {
 }
 
 // set the onRefreshAction for the app to the lump myRefreshHandler
-app.onRefresh = myRefreshHandler
+testapp.onRefresh = myRefreshHandler
 // equivalent to
-app.onRefresh = [!log "Hello, World!"][!delay 1000][!log "piss pot"]
+testapponRefresh = [!log "Hello, World!"][!delay 1000][!log "piss pot"]
 
 // run statements in these sets
 use initializeApplication

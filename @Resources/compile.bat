@@ -1,7 +1,25 @@
 @echo off
+
+if not exist "..\@Sources" (
+	echo + initializing syren environment...
+	echo.
+
+	echo - creating @Sources folder...
+
+	mkdir ..\@Sources
+
+	echo - copying default sources...
+
+	@REM TODO   copy default libraries + applications into @Sources
+
+	echo.
+)
+
 echo + compiling syren...
 echo.
+
 node compiler.js
+
 echo.
 echo + refreshing rainmeter...
 if exist "C:\Program Files\Rainmeter\Rainmeter.exe" (
@@ -21,9 +39,10 @@ if exist "C:\Program Files\Rainmeter\Rainmeter.exe" (
 				echo ! you will need to manually refresh rainmeter
 				echo.
 				echo ? try editing @Resources/compiler/compile.bat
-				echo.
 			)
 		)
 	)
 )
+
+echo.
 echo + syren has been compiled

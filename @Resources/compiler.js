@@ -1,7 +1,7 @@
 const fs = require("fs");
+const { type } = require("os");
 
-let files = {};
-let runtime = { lumps: {}, sets: {}, objects: {} };
+let scripts = {};
 
 { // read files
 	console.log("- reading files...");
@@ -12,13 +12,13 @@ let runtime = { lumps: {}, sets: {}, objects: {} };
 	console.log("- available scripts:")
 	console.log(fileList.join(", "));
 
-	fileList.forEach((file) => {
-		let data = fs.readFileSync("../@Sources/" + file, "utf-8");
+	fileList.forEach((script) => {
+		let data = fs.readFileSync("../@Sources/" + script, "utf-8");
 		// prepare for parsing
 		data = data.split(/\n+/g)
 			.map(x => x.trim())
 			.filter(x => !(x.length == 0 || x.startsWith("//")));
-		// parse
+		// parse into tokens
 		for (let l = 0; l < data.length; l++) {
 			let line = data[l];
 			// lines are parsed with this recycled piece of code
@@ -69,16 +69,37 @@ let runtime = { lumps: {}, sets: {}, objects: {} };
 			}
 
 			if (temp != "") tokens.push(temp);
-
 			data[l] = tokens;
 		}
-
-		files[file] = data;
+		// export tokens
+		scripts[script] = data;
 	});
 }
 
 { // execute scripts
-	console.log(files);
+	Object.keys(scripts).forEach(file => {
+		scripts[file].forEach((/** @type {string[]} */ line, lineIndex) => {
+			let args = line;
+			let cmd = args.shift();
+
+			switch (args[0]) {
+				// variable assignment placeholder
+				case "=": break;
+
+				default: {
+					switch (cmd) {
+						case "echo":
+							console.log(args.join(" "));
+							return;
+
+						default: {
+							console.log(`! [${file}: ${lineIndex + 1}] invalid command`);
+						}
+					}
+				}
+			}
+		});
+	});
 }
 
 // TODO: read all of the css and apply colors, etc. to corrosponding objects

@@ -15,12 +15,13 @@ let runtime = {}
 
 	fileList.forEach((file) => {
 		let data = fs.readFileSync("../@Sources/" + file, "utf-8");
+		let namespace = file.charAt(0).toUpperCase() + file.substring(1, file.length - 6);
 		// prepare for parsing
 		data = data.split(/\n+/g)
 			.map(x => x.trim())
 			.filter(x => !(x.length == 0 || x.startsWith("//")));
 		// export tokens
-		scripts[file.substring(0, file.length - 6)] = data;
+		scripts[namespace] = data;
 	});
 }
 
@@ -33,14 +34,8 @@ let runtime = {}
 		runtime[namespace] = {
 			sets: {},
 			lumps: {},
-			objects: {
-				"ballsack": genField("object", {
-					"ballCount": genField("number", 2),
-				}),
-			},
-			variables: {
-				"var": genField("string", "yep"),
-			},
+			objects: {},
+			variables: {},
 		}
 
 		scripts[namespace].forEach((/** @type {string[]} */ line, lineIndex) =>
@@ -154,10 +149,8 @@ let runtime = {}
 
 				// evaluate the variable names into their values
 				temp.forEach((x) => {
-					let ref = x.split(".");
-					let value = runtime[namespace].variables[ref[0]];
-
-					l = l.replace("\xff", strField(value) || `\${${x}}`)
+					let value = parseReference(namespace, x, lineIndex, true);
+					l = l.replace("\xff", value ? strField(value) : `\${${x}}`);
 				});
 
 				if (i == 0)
@@ -171,10 +164,46 @@ let runtime = {}
 			return tokens[0];
 	}
 
+	function parseReference(namespace, reference, lineIndex, varMode = false) {
+		let ref = reference.split(".");
+		let value;
+		let j = 1;
+
+		// if ref[0] is a different namespace
+		if (runtime[ref[0]] && ref[1]) {
+			value = runtime[ref[0]].variables[ref[1]] || runtime[ref[0]].objects[ref[1]];
+			j = 2;
+		} else {
+			value = runtime[namespace].variables[ref[0]] || runtime[namespace].objects[ref[0]];
+		}
+
+		if (!value) {
+			console.log(`! [${namespace}.syren: ${lineIndex + 1}] invalid reference (${reference})`);
+			return;
+		}
+
+		for (; j < ref.length; j++) {
+			let r = ref[j];
+			if (value._type == "object" && value._content[r]) {
+				value = value._content[r];
+			} else {
+				console.log(`! [${namespace}.syren: ${lineIndex + 1}] "${r}" is not a child of "${ref.slice(0, -1).join(".")}"`);
+				return;
+			}
+		}
+
+		if (value._type == "object" && varMode) {
+			console.log(`! [${namespace}.syren: ${lineIndex + 1}] variable referencing object (${reference})`);
+			return;
+		}
+
+		return value;
+	}
+
 	function genField(type, content, options = {}) {
 		switch (type) {
 			case "object":
-				return { _type: type, _content: content, }
+				return { _type: type, _class: options.class, _content: content, }
 
 			default:
 				return { _type: type, _content: content}
@@ -185,6 +214,9 @@ let runtime = {}
 		if (!field) return;
 
 		switch (field._type) {
+			case "object":
+				return `[object: ${field._class || "Object"}]`;
+
 			default:
 				return field._content;
 		}

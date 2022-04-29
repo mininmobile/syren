@@ -20,7 +20,6 @@ echo.
 
 node compiler.js
 
-echo.
 echo + refreshing rainmeter...
 if exist "C:\Program Files\Rainmeter\Rainmeter.exe" (
 	"C:\Program Files\Rainmeter\Rainmeter.exe" !RefreshApp

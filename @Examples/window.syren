@@ -1,9 +1,9 @@
 // this syren file (window.syren) will use styles from its corrosponding css
 // file (window.css)
 
-// window's components, applications, sets, lumps, and variables can all be
-// refered to from any other .syren scipt by simply prefixing it with "window."
-// eg. calling `window.meter.content += "Hello, from World!"`
+// window's objects, sets, lumps, and variables can all be refered to from any
+// other .syren scipt (that executes after it) by prefixing it with "window."
+// eg. calling `window.meter.content += "Hello, from World!"` from global2nd
 
 // creates a new syren application called app
 new Application testapp

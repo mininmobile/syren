@@ -3,7 +3,7 @@
 
 // window's objects, sets, lumps, and variables can all be refered to from any
 // other .syren scipt (that executes after it) by prefixing it with "window."
-// eg. calling `window.meter.content += "Hello, from World!"` from global2nd
+// eg. calling `window.meter.content += " jk"` from global2nd.syren
 
 // creates a new syren application called app
 new Application testapp

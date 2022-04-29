@@ -29,16 +29,31 @@ let runtime = {}
 
 	Object.keys(scripts).forEach(namespace => {
 		console.log(`> ${namespace} (${namespace}.syren)`);
+
+		runtime[namespace] = {
+			sets: {},
+			lumps: {},
+			objects: {
+				"ballsack": genField("object", {
+					"ballCount": genField("number", 2),
+				}),
+			},
+			variables: {
+				"var": genField("string", "yep"),
+			},
+		}
+
 		scripts[namespace].forEach((/** @type {string[]} */ line, lineIndex) =>
 			parseLine(namespace, line, lineIndex));
-		console.log("");
+
+			console.log("");
 	});
 
 	function parseLine(namespace, _line, lineIndex) {
 		// parse the variables
-		let line = parseVariables(_line);
+		let line = parseVariables(namespace, _line, lineIndex);
 		// parse the line
-		// https://github.com/mininmobile/llamecode/blob/master/compiler/compiler.js#L46=
+		// modified from https://github.com/mininmobile/llamecode/blob/master/compiler/compiler.js#L46=
 		let tokens = [];
 		let temp = "";
 		let mode = {
@@ -51,7 +66,7 @@ let runtime = {}
 
 			if (mode.string) {
 				if (mode.escape) {
-					let add = "\\" + char;
+					let add = char;
 
 					switch (char) {
 						case "n": add = "\n"; break;
@@ -61,7 +76,6 @@ let runtime = {}
 					}
 
 					temp += add;
-
 					mode.escape = false;
 				} else {
 					if (char == "\"") {
@@ -95,18 +109,85 @@ let runtime = {}
 
 			default: switch (cmd) {
 				case "echo":
-					console.log("|", args.join(""));
+					console.log(" ", args.join(""));
 					return;
 
 				default: {
-					console.log(`! [${file}: ${lineIndex + 1}] invalid command`);
+					console.log(`! [${namespace}.syren: ${lineIndex + 1}] invalid command "${cmd}"`);
 				}
 			}
 		}
 	}
 
-	function parseVariables(line) {
-		return line
+	// modified from https://github.com/mininmobile/flexscript/blob/master/lib/flexscript.js#L219=
+	function parseVariables(namespace, line, lineIndex) {
+		// first stage
+		// insert special markers for correctly defined variables locations
+		let indent = 0;
+		let tokens = [];
+
+		for (let i = 0; i < line.length; i++) {
+			if (line[i] == "{" && line[i - 1] == "$" && line[i - 2] !== "\\") {
+				tokens[indent] ?
+					tokens[indent] += "\xff" : tokens[indent] = "\xff";
+
+				indent++;
+			} else if (indent > 0 && line[i] == "}" && line[i - 1] !== "\\") {
+				tokens[indent] += "\xfe";
+
+				indent--;
+			} else if ((line[i] == "$" && line[i - 1] !== "\\") || line[i] == "\\" && line[i + 1] == "$") { /* nothing */ } else {
+				tokens[indent] ?
+					tokens[indent] += line[i] : tokens[indent] = line[i];
+			}
+		}
+
+		// second stage
+		// check if variables to evaluate are present
+		if (tokens[1]) {
+			let temp = tokens[tokens.length - 1].split("\xfe");
+			temp.pop();
+
+			// loop through every variable name
+			for (let i = tokens.length - 2; i >= 0; i--) {
+				let l = tokens[i];
+
+				// evaluate the variable names into their values
+				temp.forEach((x) => {
+					let ref = x.split(".");
+					let value = runtime[namespace].variables[ref[0]];
+
+					l = l.replace("\xff", strField(value) || `\${${x}}`)
+				});
+
+				if (i == 0)
+					return l;
+				else {
+					temp = l.split("\xfe");
+					temp.pop();
+				}
+			}
+		} else // no varaibles to evaluate
+			return tokens[0];
+	}
+
+	function genField(type, content, options = {}) {
+		switch (type) {
+			case "object":
+				return { _type: type, _content: content, }
+
+			default:
+				return { _type: type, _content: content}
+		}
+	}
+
+	function strField(field) {
+		if (!field) return;
+
+		switch (field._type) {
+			default:
+				return field._content;
+		}
 	}
 }
 

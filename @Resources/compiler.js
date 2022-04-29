@@ -100,7 +100,9 @@ let runtime = {}
 
 		switch (args[0]) {
 			// variable assignment placeholder
-			case "=": break;
+			case "=": {
+				parseReference(namespace, cmd, lineIndex, genField("string", args.slice(1).join("")));
+			} break;
 
 			default: switch (cmd) {
 				case "echo":
@@ -149,7 +151,7 @@ let runtime = {}
 
 				// evaluate the variable names into their values
 				temp.forEach((x) => {
-					let value = parseReference(namespace, x, lineIndex, true);
+					let value = parseReference(namespace, x, lineIndex);
 					l = l.replace("\xff", value ? strField(value) : `\${${x}}`);
 				});
 
@@ -164,27 +166,45 @@ let runtime = {}
 			return tokens[0];
 	}
 
-	function parseReference(namespace, reference, lineIndex, varMode = false) {
+	function parseReference(namespace, reference, lineIndex, overwrite) {
 		let ref = reference.split(".");
+		let path = "";
 		let value;
 		let j = 1;
 
 		// if ref[0] is a different namespace
 		if (runtime[ref[0]] && ref[1]) {
-			value = runtime[ref[0]].variables[ref[1]] || runtime[ref[0]].objects[ref[1]];
+			if (value = runtime[ref[0]].variables[ref[1]])
+				path += ref[0] + ".variables." + ref[1];
+			else if (value = runtime[ref[0]].objects[ref[1]])
+				path += ref[0] + ".objects." + ref[1];
 			j = 2;
 		} else {
-			value = runtime[namespace].variables[ref[0]] || runtime[namespace].objects[ref[0]];
+			if (value = runtime[namespace].variables[ref[0]])
+				path += namespace + ".variables." + ref[0];
+			else if (value = runtime[namespace].objects[ref[0]])
+				path += namespace + ".objects." + ref[0];
 		}
 
 		if (!value) {
-			console.log(`! [${namespace}.syren: ${lineIndex + 1}] invalid reference (${reference})`);
-			return;
+			if (overwrite) {
+				if (runtime[ref[0]] && ref[1])
+					path += ref[0] + ".variables." + ref[1];
+				else
+					path += namespace + ".variables." + ref[0];
+
+				j = ref.length;
+			} else {
+				console.log(`! [${namespace}.syren: ${lineIndex + 1}] invalid reference (${reference})`);
+				return;
+			}
 		}
 
 		for (; j < ref.length; j++) {
 			let r = ref[j];
+			path += ".";
 			if (value._type == "object" && value._content[r]) {
+				path += "_content." + r;
 				value = value._content[r];
 			} else {
 				console.log(`! [${namespace}.syren: ${lineIndex + 1}] "${r}" is not a child of "${ref.slice(0, -1).join(".")}"`);
@@ -192,12 +212,20 @@ let runtime = {}
 			}
 		}
 
-		if (value._type == "object" && varMode) {
-			console.log(`! [${namespace}.syren: ${lineIndex + 1}] variable referencing object (${reference})`);
-			return;
-		}
+		if (overwrite !== undefined) {
+			let stack = path.split(".");
+			let object = runtime;
 
-		return value;
+			while (stack.length > 1) {
+				object = object[stack.shift()];
+			}
+
+			object[stack.shift()] = overwrite;
+
+			return path;
+		} else {
+			return value;
+		}
 	}
 
 	function genField(type, content, options = {}) {

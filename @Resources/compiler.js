@@ -101,7 +101,16 @@ let runtime = {}
 		switch (args[0]) {
 			// variable assignment placeholder
 			case "=": {
-				parseReference(namespace, cmd, lineIndex, genField("string", args.slice(1).join("")));
+				let ref = parseReference(namespace, cmd, lineIndex, true);
+				if (!ref) break;
+				let value = makeField(args.slice(1).join(""));
+				setObject(runtime, ref.path, value);
+			} break;
+
+			case "=[]": {
+				let ref = parseReference(namespace, cmd, lineIndex, true);
+				let value = makeField(args.slice(1).map(makeField));
+				setObject(runtime, ref.path, value);
 			} break;
 
 			default: switch (cmd) {
@@ -166,7 +175,7 @@ let runtime = {}
 			return tokens[0];
 	}
 
-	function parseReference(namespace, reference, lineIndex, overwrite) {
+	function parseReference(namespace, reference, lineIndex, returnMeta = false) {
 		let ref = reference.split(".");
 		let path = "";
 		let value;
@@ -187,7 +196,7 @@ let runtime = {}
 		}
 
 		if (!value) {
-			if (overwrite) {
+			if (returnMeta) {
 				if (runtime[ref[0]] && ref[1])
 					path += ref[0] + ".variables." + ref[1];
 				else
@@ -203,28 +212,47 @@ let runtime = {}
 		for (; j < ref.length; j++) {
 			let r = ref[j];
 			path += ".";
-			if (value._type == "object" && value._content[r]) {
+			if (value._type == "object" && value._content[r] !== undefined) {
 				path += "_content." + r;
 				value = value._content[r];
+			} else if (value._type == "array") {
+				if ((value._content[Number(r)] !== undefined && !returnMeta) || (!isNaN(Number(r)) && returnMeta)) {
+					path += "_content." + r;
+					value = value._content[Number(r)];
+				} else if (r == "length") {
+					path += "_content." + r;
+					value = makeField(value._content.length);
+				} else {
+					console.log(`! [${namespace}.syren: ${lineIndex + 1}] "${r}" is not a property of array "${ref.slice(0, -1).join(".")}"`);
+					return;
+				}
 			} else {
 				console.log(`! [${namespace}.syren: ${lineIndex + 1}] "${r}" is not a child of "${ref.slice(0, -1).join(".")}"`);
 				return;
 			}
 		}
 
-		if (overwrite !== undefined) {
-			let stack = path.split(".");
-			let object = runtime;
-
-			while (stack.length > 1) {
-				object = object[stack.shift()];
-			}
-
-			object[stack.shift()] = overwrite;
-
-			return path;
+		if (returnMeta) {
+			return { path, value }
 		} else {
 			return value;
+		}
+	}
+
+	function makeField(value, options = {}) {
+		if (typeof value == "string") {
+			// if string is passed, check if can be number
+			let x = Number(value);
+			if (isNaN(x))
+				return genField("string", value, options);
+			else
+				return genField("number", x, options);
+		} else if (typeof value == "number") {
+			return genField("number", value, options);
+		} else if (value instanceof Array) {
+			return genField("array", value, options);
+		} else {
+			return genField(typeof value, value, options);
 		}
 	}
 
@@ -243,11 +271,24 @@ let runtime = {}
 
 		switch (field._type) {
 			case "object":
-				return `[object: ${field._class || "Object"}]`;
+				return `<object: ${field._class || "Object"}>`;
+
+			case "array":
+				return `<array: ${field._content.map(strField).join(", ")}>`;
 
 			default:
 				return field._content;
 		}
+	}
+
+	function setObject(object, path, value) {
+		let stack = path.split(".");
+
+		while (stack.length > 1) {
+			object = object[stack.shift()];
+		}
+
+		object[stack.shift()] = value;
 	}
 }
 

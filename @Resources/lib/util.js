@@ -10,6 +10,8 @@ function makeField(value, options = {}) {
 		return genField("number", value, options);
 	} else if (value instanceof Array) {
 		return genField("array", value, options);
+	} else if (typeof value == "function") {
+		return genField("command", value, options);
 	} else {
 		return genField(typeof value, value, options);
 	}
@@ -19,6 +21,9 @@ function genField(type, content, options = {}) {
 	switch (type) {
 		case "object":
 			return { _type: type, _class: options.class, _content: content, }
+
+		case "command":
+			return { _type: type, _command: options.command, _content: content, }
 
 		default:
 			return { _type: type, _content: content}

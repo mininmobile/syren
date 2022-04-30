@@ -131,9 +131,12 @@ let runtime = {}
 					runtime[namespace].objects[args[1]] = builtins[args[0]]();
 					return;
 
-				default: {
-					console.log(`! [${namespace}.syren: ${lineIndex + 1}] invalid command "${cmd}"`);
-				}
+				default:
+					let ref = parseReference(namespace, cmd, lineIndex, true);
+					if ((ref || {}).isCommand) {
+						ref.value._content(cmd, args, runtime, namespace, lineIndex);
+					} else
+						console.log(`! [${namespace}.syren: ${lineIndex + 1}] invalid command "${cmd}"`);
 			}
 		}
 	}
@@ -197,6 +200,7 @@ let runtime = {}
 		let setsNamespace = false;
 		let isVariable = true;
 		let isObject = false;
+		let isCommand = false;
 
 		// if ref[0] is a different namespace
 		if (runtime[ref[0]] && ref[1]) {
@@ -241,6 +245,8 @@ let runtime = {}
 				path += "_content." + r;
 				value = value._content[r];
 				isObject = false;
+				if (value._type == "command")
+					isCommand = true;
 			} else if (value._type == "array")
 			{ // if a field of an array
 				isObject = false;
@@ -264,7 +270,7 @@ let runtime = {}
 		}
 
 		if (returnMeta) {
-			return { setsNamespace, isVariable, isObject, path, value }
+			return { setsNamespace, isVariable, isObject, isCommand, path, value }
 		} else {
 			return value;
 		}

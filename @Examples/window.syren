@@ -14,7 +14,7 @@ set initializeApplication {
 	// set app's title by assigning to its 'title' field
 	testapp.title = "Test Application"
 	// set the metadata of the skin by calling the meta method of 'app')
-	testapp.meta "zvava" "1.0" "MIT" "Test Application for Syren"
+	testapp.meta "Test Application for Syren" "zvava" "MIT" "1.0"
 	// set size of skin by calling the size method of 'app')
 	testapp.size 400 300
 }

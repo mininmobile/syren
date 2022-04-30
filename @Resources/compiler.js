@@ -1,4 +1,6 @@
 const fs = require("fs");
+const util = require("./lib/util");
+const builtins = require("./lib/builtins");
 
 let styles = {}
 let scripts = {}
@@ -41,7 +43,7 @@ let runtime = {}
 		scripts[namespace].forEach((/** @type {string[]} */ line, lineIndex) =>
 			parseLine(namespace, line, lineIndex));
 
-			console.log("");
+		console.log("");
 	});
 
 	function parseLine(namespace, _line, lineIndex) {
@@ -103,19 +105,30 @@ let runtime = {}
 			case "=": {
 				let ref = parseReference(namespace, cmd, lineIndex, true);
 				if (!ref) break;
-				let value = makeField(args.slice(1).join(""));
-				setObject(runtime, ref.path, value);
+				let value = util.makeField(args.slice(1).join(""));
+				util.setObject(runtime, ref.path, value);
 			} break;
 
 			case "=[]": {
 				let ref = parseReference(namespace, cmd, lineIndex, true);
-				let value = makeField(args.slice(1).map(makeField));
-				setObject(runtime, ref.path, value);
+				let value = util.makeField(args.slice(1).map(util.makeField));
+				util.setObject(runtime, ref.path, value);
 			} break;
 
 			default: switch (cmd) {
 				case "echo":
 					console.log(" ", args.join(""));
+					return;
+
+				case "new":
+					if (builtins[args[0]] == undefined)
+						return console.log(`! [${namespace}.syren: ${lineIndex + 1}] invalid object "${args[0]}"`);
+					if (!args[1] || args[1].length == 0)
+						return console.log(`! [${namespace}.syren: ${lineIndex + 1}] invalid object name`);
+					if (runtime[namespace].objects[args[1]] !== undefined)
+						return console.log(`! [${namespace}.syren: ${lineIndex + 1}] object by name "${args[1]}" already exists`);
+
+					runtime[namespace].objects[args[1]] = builtins[args[0]]();
 					return;
 
 				default: {
@@ -161,7 +174,7 @@ let runtime = {}
 				// evaluate the variable names into their values
 				temp.forEach((x) => {
 					let value = parseReference(namespace, x, lineIndex);
-					l = l.replace("\xff", value ? strField(value) : `\${${x}}`);
+					l = l.replace("\xff", value ? util.strField(value) : `\${${x}}`);
 				});
 
 				if (i == 0)
@@ -177,22 +190,33 @@ let runtime = {}
 
 	function parseReference(namespace, reference, lineIndex, returnMeta = false) {
 		let ref = reference.split(".");
-		let path = "";
 		let value;
 		let j = 1;
+		// meta
+		let path = "";
+		let setsNamespace = false;
+		let isVariable = true;
+		let isObject = false;
 
 		// if ref[0] is a different namespace
 		if (runtime[ref[0]] && ref[1]) {
 			if (value = runtime[ref[0]].variables[ref[1]])
 				path += ref[0] + ".variables." + ref[1];
-			else if (value = runtime[ref[0]].objects[ref[1]])
+			else if (value = runtime[ref[0]].objects[ref[1]]) {
 				path += ref[0] + ".objects." + ref[1];
+				isVariable = false;
+				isObject = true;
+			}
 			j = 2;
+			setsNamespace = true;
 		} else {
 			if (value = runtime[namespace].variables[ref[0]])
 				path += namespace + ".variables." + ref[0];
-			else if (value = runtime[namespace].objects[ref[0]])
+			else if (value = runtime[namespace].objects[ref[0]]) {
 				path += namespace + ".objects." + ref[0];
+				isVariable = false;
+				isObject = true;
+			}
 		}
 
 		if (!value) {
@@ -212,83 +236,38 @@ let runtime = {}
 		for (; j < ref.length; j++) {
 			let r = ref[j];
 			path += ".";
-			if (value._type == "object" && value._content[r] !== undefined) {
+			if (value._type == "object" && value._content[r] !== undefined)
+			{ // if a field of an object
 				path += "_content." + r;
 				value = value._content[r];
-			} else if (value._type == "array") {
-				if ((value._content[Number(r)] !== undefined && !returnMeta) || (!isNaN(Number(r)) && returnMeta)) {
+				isObject = false;
+			} else if (value._type == "array")
+			{ // if a field of an array
+				isObject = false;
+				if ((value._content[Number(r)] !== undefined && !returnMeta) || (!isNaN(Number(r)) && returnMeta))
+				{ // if an element in the array
 					path += "_content." + r;
 					value = value._content[Number(r)];
-				} else if (r == "length") {
-					path += "_content." + r;
-					value = makeField(value._content.length);
-				} else {
+				} else if (r == "length" && !returnMeta)
+				{ // if the length of the array
+					value = util.makeField(value._content.length);
+				} else
+				{
 					console.log(`! [${namespace}.syren: ${lineIndex + 1}] "${r}" is not a property of array "${ref.slice(0, -1).join(".")}"`);
 					return;
 				}
-			} else {
+			} else
+			{ // if it is not a field of the previous reference
 				console.log(`! [${namespace}.syren: ${lineIndex + 1}] "${r}" is not a child of "${ref.slice(0, -1).join(".")}"`);
 				return;
 			}
 		}
 
 		if (returnMeta) {
-			return { path, value }
+			return { setsNamespace, isVariable, isObject, path, value }
 		} else {
 			return value;
 		}
-	}
-
-	function makeField(value, options = {}) {
-		if (typeof value == "string") {
-			// if string is passed, check if can be number
-			let x = Number(value);
-			if (isNaN(x))
-				return genField("string", value, options);
-			else
-				return genField("number", x, options);
-		} else if (typeof value == "number") {
-			return genField("number", value, options);
-		} else if (value instanceof Array) {
-			return genField("array", value, options);
-		} else {
-			return genField(typeof value, value, options);
-		}
-	}
-
-	function genField(type, content, options = {}) {
-		switch (type) {
-			case "object":
-				return { _type: type, _class: options.class, _content: content, }
-
-			default:
-				return { _type: type, _content: content}
-		}
-	}
-
-	function strField(field) {
-		if (!field) return;
-
-		switch (field._type) {
-			case "object":
-				return `<object: ${field._class || "Object"}>`;
-
-			case "array":
-				return `<array: ${field._content.map(strField).join(", ")}>`;
-
-			default:
-				return field._content;
-		}
-	}
-
-	function setObject(object, path, value) {
-		let stack = path.split(".");
-
-		while (stack.length > 1) {
-			object = object[stack.shift()];
-		}
-
-		object[stack.shift()] = value;
 	}
 }
 

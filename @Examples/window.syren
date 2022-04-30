@@ -43,7 +43,7 @@ lump myRefreshHandler {
 // set the onRefreshAction for the app to the lump myRefreshHandler
 testapp.onRefresh = myRefreshHandler
 // equivalent to
-testapponRefresh = [!log "Hello, World!"][!delay 1000][!log "piss pot"]
+testapp.onRefresh = [!log "Hello, World!"][!delay 1000][!log "piss pot"]
 
 // run statements in these sets
 use initializeApplication

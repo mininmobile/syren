@@ -2,6 +2,7 @@ const util = require("./util");
 
 function Application() {
 	let object = {
+		components: util.makeField([]),
 		// metadata
 		title: util.makeField(""),
 		author: util.makeField(""),
@@ -12,7 +13,7 @@ function Application() {
 		width: util.makeField(800),
 		height: util.makeField(600),
 		// commands
-		meta: util.makeField((cmd, args, runtime, namespace, lineIndex) => {
+		meta: util.makeField((args, runtime, namespace, lineIndex) => {
 			if (args[0] && args[0].length > 0)
 				object.description._content = args[0];
 			if (args[1] && args[1].length > 0)
@@ -23,7 +24,7 @@ function Application() {
 				object.version._content = args[3];
 		}, { command: "meta" }),
 
-		size: util.makeField((cmd, args, runtime, namespace, lineIndex) => {
+		size: util.makeField((args, runtime, namespace, lineIndex) => {
 			if (args[0] == undefined || args[0].length == 0 || isNaN(args[0]))
 				return console.log(`! [${namespace}.syren: ${lineIndex + 1}] invalid argument "${args[0]}" expected number`);
 			if (args[1] == undefined || args[1].length == 0 || isNaN(args[1]))
@@ -36,6 +37,27 @@ function Application() {
 	return util.genField("object", object, { class: "Application" });
 }
 
+function StringMeter() {
+	let object = {
+		// properties
+		content: util.makeField(""),
+		x: util.makeField(0),
+		y: util.makeField(0),
+		// commands
+		pos: util.makeField((args, runtime, namespace, lineIndex) => {
+			if (args[0] == undefined || args[0].length == 0 || isNaN(args[0]))
+				return console.log(`! [${namespace}.syren: ${lineIndex + 1}] invalid argument "${args[0]}" expected number`);
+			if (args[1] == undefined || args[1].length == 0 || isNaN(args[1]))
+				return console.log(`! [${namespace}.syren: ${lineIndex + 1}] invalid argument "${args[1]}" expected number`);
+
+			object.x._content = Number(args[0]);
+			object.y._content = Number(args[1]);
+		}, { command: "size" }),
+	}
+	return util.genField("object", object, { class: "StringMeter" });
+}
+
 module.exports = {
 	Application,
+	StringMeter,
 }

@@ -20,16 +20,16 @@ set initializeApplication {
 }
 
 set initializeComponents {
-	// creates a shape meter called background, add to testapp's meters immediately
-	new ShapeMeter background > testapp
+	// creates a shape meter called background, add to testapp's components immediately
+	new ShapeMeter background -> testapp
 	background.shape = "rectangle 0, 0, #testapp.w#, #testapp.h#, 8 | fill color 1c1c1c | strokewidth 1.5 | stroke color 777777"
 
 	// create a new text meter called meter
 	new TextMeter meter
 	meter.content = "Hello, World!"
 	meter.pos 100 100
-	// add to testapp's meter after setting its properties
-	meter > testapp
+	// add to testapp's components after setting its properties
+	meter -> testapp
 }
 
 // a lump is like a set but for rainmeter bangs, these can be used as

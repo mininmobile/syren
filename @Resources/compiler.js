@@ -128,13 +128,21 @@ let runtime = {}
 					if (runtime[namespace].objects[args[1]] !== undefined)
 						return console.log(`! [${namespace}.syren: ${lineIndex + 1}] object by name "${args[1]}" already exists`);
 
-					runtime[namespace].objects[args[1]] = builtins[args[0]]();
+					let n = runtime[namespace].objects[args[1]] = builtins[args[0]]();
+
+					if (args[2] == "->") {
+						let ref = parseReference(namespace, args[3], lineIndex);
+						if (!args[3] || !ref || !ref._content.components)
+							return console.log(`! [${namespace}.syren: ${lineIndex + 1}] invalid object after "->"`);
+
+						ref._content.components._content.push(n);
+					}
 					return;
 
 				default:
 					let ref = parseReference(namespace, cmd, lineIndex, true);
 					if ((ref || {}).isCommand) {
-						ref.value._content(cmd, args, runtime, namespace, lineIndex);
+						ref.value._content(args, runtime, namespace, lineIndex);
 					} else
 						console.log(`! [${namespace}.syren: ${lineIndex + 1}] invalid command "${cmd}"`);
 			}

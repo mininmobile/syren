@@ -9,13 +9,14 @@ let runtime = {}
 { // read files
 	console.log("- reading files...");
 
-	let fileList = fs.readdirSync("../@Sources")
-		.filter(x => x.endsWith(".syren") || x.endsWith(".css"));
+	let fileList = fs.readdirSync("../@Sources");
+	let scriptList = fileList.filter(x => x.endsWith(".syren"));
+	let styleList = fileList.filter(x => x.endsWith(".css"));
 
 	console.log("- available scripts:")
-	console.log(fileList.join(", "), "\n");
+	console.log(scriptList.join(", "));
 
-	fileList.forEach((file) => {
+	scriptList.forEach((file) => {
 		let data = fs.readFileSync("../@Sources/" + file, "utf-8");
 		let namespace = file.charAt(0).toUpperCase() + file.substring(1, file.length - 6);
 		// prepare for parsing
@@ -24,6 +25,17 @@ let runtime = {}
 			.filter(x => !(x.length == 0 || x.startsWith("//")));
 		// export tokens
 		scripts[namespace] = data;
+	});
+
+	console.log("- available styles:")
+	console.log(styleList.join(", "), "\n");
+
+	styleList.forEach((file) => {
+		let data = fs.readFileSync("../@Sources/" + file, "utf-8");
+		let namespace = file.charAt(0).toUpperCase() + file.substring(1, file.length - 4);
+
+		// export tokens
+		styles[namespace] = data;
 	});
 }
 
@@ -285,5 +297,9 @@ let runtime = {}
 	}
 }
 
-// TODO: read all of the css and apply colors, etc. to corrosponding objects
+{ // interpret css stylings
+	// TODO: find a css parser
+}
+
+// TODO: apply colors, etc. to corrosponding objects
 // TODO: export all applications into .ini files

@@ -11,12 +11,16 @@ you will need:
 !   tested with node.js v16.15.0 (lts)
     you can check with `node -v` in cmd
 
+->  npm
+!   tested with npm v8.5.5
+    you can check with `npm -v` in cmd
+
 ->  rainmeter
 !   tested with rainmeter v4.5.13
     you can check with right-click tray icon > About
 
 ~>  git
-!   optional
+*   optional
     used to update repositories in @Sources and syren itself
 
 steps:
@@ -25,7 +29,10 @@ steps:
 
 2)  cd @Resources
 
-3)  compile.bat
+3) npm i
+*  install the css parser
+
+4)  compile.bat
 *   this will make @Sources\ in the syren\ folder
 *   this is where you place all your .syren and .css files, they are included
     in to your compilation automagically when running the compiler

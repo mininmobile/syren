@@ -52,7 +52,7 @@ function StringMeter() {
 
 			object.x._content = Number(args[0]);
 			object.y._content = Number(args[1]);
-		}, { command: "size" }),
+		}, { command: "pos" }),
 	}
 	return util.genField("object", object, { class: "StringMeter" });
 }

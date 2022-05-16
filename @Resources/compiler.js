@@ -1,4 +1,5 @@
 const fs = require("fs");
+const csstree = require("css-tree");
 const util = require("./lib/util");
 const builtins = require("./lib/builtins");
 
@@ -298,7 +299,17 @@ let runtime = {}
 }
 
 { // interpret css stylings
-	// TODO: find a css parser
+	console.log("- parsing .css files\n");
+
+	Object.keys(styles).forEach(namespace => {
+		console.log(`> ${namespace} (${namespace}.css)`);
+
+		let ast = csstree.parse(styles[namespace]);
+
+		// TODO stuff
+	});
+
+	console.log("");
 }
 
 // TODO: apply colors, etc. to corrosponding objects

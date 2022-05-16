@@ -1,11 +1,70 @@
 SYREN ~ a beautiful mermaid baby with magical powers
 ---
+a scripting language which, alongside css, compiles into rainmeter skins.
 
-a scripting language which, alongside css, compiles into rainmeter ini files.
+Q: why?
+mainly for fun, in the long term i want to make rainmeter a more accessible and flexible platform, and to speed up writing skins like visualizers or settings menus
 
-USAGE
+Q: how?
+by consolidating generator code and the skin itself into one codebase, as well as allowing styling with css to set properties on several components at once, the footprint of your rainmeter skin's source code is (hopefully) reduced and more organized making it easier to conceptualize.
+
+EXAMPLE
 ---
+a basic syren application consists of a .syren file which defines at least one Application object, and a .css file (optional)
 
+-> test.syren
+    // create a new syren application
+    new Application testapp
+
+    // create a new string meter and make it a component of testapp
+    new StringMeter meter1 -> testapp
+    // set the content field of the meter1 object
+    meter1.content = "Hello, World!"
+
+    // same as above
+    new StringMeter meter2 -> testapp
+    meter2.content = "pee pee poo poo"
+    // executes the pos method of the meter2 object
+    // this function sets the x and y position of the meter
+    meter2.pos 0 20
+
+    // outputs: <array: <object: StringMeter>, <object: StringMeter>>
+    echo "${testapp.components}"
+
+in the corosponding css file, we set the colors of the string meters. this file would apply to all Application objects created by the corosponding syren file.
+
+-> test.css
+    meter1 {
+        color: #ff00ff; }
+
+    /* here we make sure only testapp's meter2 gets colored, in case the .syren
+       file generated multiple Applications */
+    testapp meter2 {
+        color: #ffff00; }
+
+these files would "compile" into an .ini file for each Application.
+
+-> testapp.ini
+    [rainmeter]
+    update = 1000
+    accurateText = 1
+
+    [meter1]
+    meter = string
+    text = Hello, World!
+    antiAlias = 1
+    fontColor = ff00ff
+
+    [meter2]
+    meter = string
+    x = 0
+    y = 20
+    text = pee pee poo poo
+    antiAlias = 1
+    fontColor = ffff00
+
+GETTING STARTED
+---
 you will need:
 ->  node.js
 !   tested with node.js v16.15.0 (lts)
@@ -21,7 +80,7 @@ you will need:
 
 ~>  git
 *   optional
-    used to update repositories in @Sources and syren itself
+    used to update repositories in @Sources\ and syren itself
 
 steps:
 1)  install syren (git clone into My Documents\Rainmeter\Skins\)
@@ -39,7 +98,6 @@ steps:
 
 ARCHITECTURE
 ---
-
 the main folder which contains the source code for all your syren applications
 is Skins\syren\@Sources. the "compiler" will include all files ending in .css
 and .syren in this folder and its subfolders in the 'compilation'.
@@ -60,5 +118,4 @@ a preprocessor. it runs in the following steps:
 
 SYNTAX
 ---
-
 under construction

@@ -3,11 +3,21 @@ this css file (window.css) will only apply to its corrosponding syren
 file (window.syren)
 */
 
-body {
-	background-color: #1c1c1c;
+/* styles all Application objects */
+Application {
+	/* set other metadata */
+	description: "Test Application for Syren";
+	author: "zvava";
+	version: "1.0";
+	/* equivalent to testapp.setSize 400 300 */
+	w: 400;
+	h: 300;
 }
 
 /* styles the meter called 'meter' */
 #meter {
 	color: #dddddd;
+	/* equivalent to testapp.setPos 100 100 */
+	x: 100;
+	y: 100;
 }

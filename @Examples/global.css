@@ -1,21 +1,23 @@
 /* this css file (global.css) will apply to every syren app as
 customizable defaults */
 
-/* <rainmeter> styles the rainmeter section */
-rainmeter {
-	accurate-text: true; /* true will evaluate to 1 */
+Application {
+	/* sets license metadata for all Applications */
+	license: "MIT";
+	/* css booleans! true will evaluate to 1, false will evaluate to 0 */
+	/* accurate-text: false; (enabled by default, uncomment to disable) */
 }
 
-/* <body> styles the window background meter */
-body {
+/* styles all meters with the class of 'background' */
+.background {
 	background-color: #fafafa;
 	border-radius: 8;
 }
 
 /* styles all StringMeter */
-string {
+StringMeter {
 	font-family: "Segoe UI";
 	font-size: 11;
 	color: #0f0f0f;
-	anti-alias: true;
+	/* anti-alias: false; (enabled by default, uncomment to disable) */
 }

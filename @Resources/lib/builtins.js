@@ -10,10 +10,10 @@ function Application() {
 		license: util.makeField(""),
 		description: util.makeField(""),
 		// properties
-		width: util.makeField(800),
-		height: util.makeField(600),
+		w: util.makeField(800),
+		h: util.makeField(600),
 		// commands
-		meta: util.makeField((args, runtime, namespace, lineIndex) => {
+		setMeta: util.makeField((args, runtime, namespace, lineIndex) => {
 			if (args[0] && args[0].length > 0)
 				object.description._content = args[0];
 			if (args[1] && args[1].length > 0)
@@ -22,9 +22,9 @@ function Application() {
 				object.license._content = args[2];
 			if (args[3] && args[3].length > 0)
 				object.version._content = args[3];
-		}, { command: "meta" }),
+		}, { command: "setMeta" }),
 
-		size: util.makeField((args, runtime, namespace, lineIndex) => {
+		setSize: util.makeField((args, runtime, namespace, lineIndex) => {
 			if (args[0] == undefined || args[0].length == 0 || isNaN(args[0]))
 				return console.log(`! [${namespace}.syren: ${lineIndex + 1}] invalid argument "${args[0]}" expected number`);
 			if (args[1] == undefined || args[1].length == 0 || isNaN(args[1]))
@@ -32,7 +32,7 @@ function Application() {
 
 			object.width._content = Number(args[0]);
 			object.height._content = Number(args[1]);
-		}, { command: "size" }),
+		}, { command: "setSize" }),
 	}
 	return util.genField("object", object, { class: "Application" });
 }
@@ -44,7 +44,7 @@ function StringMeter() {
 		x: util.makeField(0),
 		y: util.makeField(0),
 		// commands
-		pos: util.makeField((args, runtime, namespace, lineIndex) => {
+		setPos: util.makeField((args, runtime, namespace, lineIndex) => {
 			if (args[0] == undefined || args[0].length == 0 || isNaN(args[0]))
 				return console.log(`! [${namespace}.syren: ${lineIndex + 1}] invalid argument "${args[0]}" expected number`);
 			if (args[1] == undefined || args[1].length == 0 || isNaN(args[1]))
@@ -52,7 +52,7 @@ function StringMeter() {
 
 			object.x._content = Number(args[0]);
 			object.y._content = Number(args[1]);
-		}, { command: "pos" }),
+		}, { command: "setPos" }),
 	}
 	return util.genField("object", object, { class: "StringMeter" });
 }

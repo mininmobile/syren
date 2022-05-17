@@ -24,23 +24,21 @@ a basic syren application consists of a .syren file which defines at least one A
     // same as above
     new StringMeter meter2 -> testapp
     meter2.content = "pee pee poo poo"
-    // executes the pos method of the meter2 object
-    // this function sets the x and y position of the meter
-    meter2.pos 0 20
 
     // outputs: <array: <object: StringMeter>, <object: StringMeter>>
     echo "${testapp.components}"
 
-in the corosponding css file, we set the colors of the string meters. this file would apply to all Application objects created by the corosponding syren file.
+in the corresponding css file, we set the colors of the string meters, and move the second one down. this file would apply to all Application objects created by the corresponding syren file.
 
 -> test.css
-    meter1 {
-        color: #ff00ff; }
+    #meter1 {
+        color: #ff00ff;
+    }
 
-    /* here we make sure only testapp's meter2 gets colored, in case the .syren
-       file generated multiple Applications */
-    testapp meter2 {
-        color: #ffff00; }
+    #meter2 {
+        color: #ffff00;
+        y: 20;
+    }
 
 these files would "compile" into an .ini file for each Application.
 
@@ -57,7 +55,6 @@ these files would "compile" into an .ini file for each Application.
 
     [meter2]
     meter = string
-    x = 0
     y = 20
     text = pee pee poo poo
     antiAlias = 1
@@ -81,6 +78,12 @@ you will need:
 ~>  git
 *   optional
     used to update repositories in @Sources\ and syren itself
+
+~>  knowledge of rainmeter, css, and any programming language
+*   rainmeter resource: https://docs.rainmeter.net/manual/
+*   css resource: https://developer.mozilla.org/en-US/docs/Web/CSS
+*   for the last one, try learning lua! it's quite simple and you would need to
+    learn it eventually anyway for rainmeter
 
 steps:
 1)  install syren (git clone into My Documents\Rainmeter\Skins\)
@@ -113,9 +116,38 @@ a preprocessor. it runs in the following steps:
 
 3. parse all css files, and apply properties to the extracted objects
 
-4. serialize all the objects into .ini files of their corrosponding application
+4. serialize all the objects into .ini files of their corresponding application
 
 
-SYNTAX
+SYNTAX (CSS)
 ---
-under construction
+syren css files are essentially just a quicker way to set properties of objects.
+
+-> setting position in syren
+    object.x = 100
+    object.y = 50
+    object.z = 0
+    object.w = 0
+
+-> setting position in css
+    #object {
+        x: 100;
+        y: 50;
+        z: 0;
+        w: 0;
+    }
+
+notice how the selector (#object) begins with a hash, or what normally represents an id in css. in syren's flavor of css, every
+
+    new StringMeter meter -> testapp
+    meter.classes += "alice"
+    // you could visualize this as <StringMeter id="meter" class="alice">
+
+some selectors that would affect this component:
+
+    .alice
+    #meter
+    StringMeter#meter
+    StringMeter.alice
+    #testapp #meter.alice
+    Application#testapp StringMeter#meter.alice

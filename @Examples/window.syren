@@ -13,21 +13,17 @@ new Application testapp
 set initializeApplication {
 	// set app's title by assigning to its 'title' field
 	testapp.title = "Test Application"
-	// set the metadata of the skin by calling the meta method of 'app')
-	testapp.meta "Test Application for Syren" "zvava" "MIT" "1.0"
-	// set size of skin by calling the size method of 'app')
-	testapp.size 400 300
 }
 
 set initializeComponents {
 	// creates a shape meter called background, add to testapp's components immediately
 	new ShapeMeter background -> testapp
+	background.classes += "background"
 	background.shape = "rectangle 0, 0, #testapp.w#, #testapp.h#, 8 | fill color 1c1c1c | strokewidth 1.5 | stroke color 777777"
 
 	// create a new text meter called meter
 	new TextMeter meter
 	meter.content = "Hello, World!"
-	meter.pos 100 100
 	// add to testapp's components after setting its properties
 	meter -> testapp
 }
@@ -43,7 +39,7 @@ lump myRefreshHandler {
 // set the onRefreshAction for the app to the lump myRefreshHandler
 testapp.onRefresh = myRefreshHandler
 // equivalent to
-testapp.onRefresh = [!log "Hello, World!"][!delay 1000][!log "piss pot"]
+testapp.onRefresh = "[!log \"Hello, World!\"][!delay 1000][!log \"piss pot\"]"
 
 // run statements in these sets
 use initializeApplication
